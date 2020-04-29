@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/von-neumann-simulator/static/css/main.e27f258b.chunk.css",
+    "main.js": "/von-neumann-simulator/static/js/main.8915140b.chunk.js",
+    "main.js.map": "/von-neumann-simulator/static/js/main.8915140b.chunk.js.map",
+    "runtime-main.js": "/von-neumann-simulator/static/js/runtime-main.2fcea7ab.js",
+    "runtime-main.js.map": "/von-neumann-simulator/static/js/runtime-main.2fcea7ab.js.map",
+    "static/js/2.d0c02747.chunk.js": "/von-neumann-simulator/static/js/2.d0c02747.chunk.js",
+    "static/js/2.d0c02747.chunk.js.map": "/von-neumann-simulator/static/js/2.d0c02747.chunk.js.map",
+    "index.html": "/von-neumann-simulator/index.html",
+    "precache-manifest.155f71fae1df85c72aab9bb4b814eaa1.js": "/von-neumann-simulator/precache-manifest.155f71fae1df85c72aab9bb4b814eaa1.js",
+    "service-worker.js": "/von-neumann-simulator/service-worker.js",
+    "static/css/main.e27f258b.chunk.css.map": "/von-neumann-simulator/static/css/main.e27f258b.chunk.css.map",
+    "static/js/2.d0c02747.chunk.js.LICENSE.txt": "/von-neumann-simulator/static/js/2.d0c02747.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.2fcea7ab.js",
+    "static/js/2.d0c02747.chunk.js",
+    "static/css/main.e27f258b.chunk.css",
+    "static/js/main.8915140b.chunk.js"
+  ]
+}
