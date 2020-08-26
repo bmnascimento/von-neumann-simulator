@@ -1,0 +1,75 @@
+      @    497
+
+START LD   COMP 
+      MM   CONT
+
+IN    LD   LDA0
+      MM   LDA
+      LD   LDA0+1
+      MM   LDA+1
+
+LDA   K    8e
+LDA+1 K    01
+      +    TOTAL ; atualiza TOTAL
+      MM   TOTAL
+      *    DEZESSEIS  ; multiplica por 0x10 para eliminar o mais significativo
+                      ; e divide em seguida por 0x10 para ficar so o menos
+                      ; significativo, que eh o resto da divisao por 16
+      /    DEZESSEIS
+      PD   0
+
+; testa se e a ultima letra
+      LD   CONT
+      -    UM     ; decrementa contador do loop
+      MM   CONT
+      JZ   FORA   ; se zerar, terminou o loop, se nao, prossegue
+
+; incrementa o endereco a ser acessado no vetor de letras
+      LD   LDA+1
+      +    UM     ; incrementa byte menos significativo
+      MM   LDA+1
+
+      JZ   INCR   ; se deu zero, vai incrementar o outro byte
+      JP   LDA    ; se nao, executa mais uma instancia do loop
+
+; incrementa o byte mais significativo do endereco a acessar
+INCR  LD   LDA    
+      +    UM     ; incrementa byte mais significativo
+      MM   LDA
+      JP   LDA    ; e vai executar outra instancia do loop
+
+; final do loop
+FORA  HM   START  ; para a maquina e volta ao inicio se for reacionada
+
+; ==========================  aREA DE DADOS   ============================
+;
+       @ 200
+; constantes e variaveis
+UM     K   1       ; constante 1
+CONT   K   0       ; variavel CONT iniciada com zero
+LDA0   K  8e
+LDA0+1 K  01
+TOTAL  K   0
+DEZESSEIS K 10
+
+     @ E00
+COMP K   8
+; nusp 09836197
+NUSP K  37
+     K  39
+     K  31
+     K  36
+     K  33
+     K  38
+     K  39
+     K  30
+
+CODIGO K  0
+       K  0
+       K  0
+       K  0
+       K  0
+       K  0
+       K  0
+       K  0
+     #

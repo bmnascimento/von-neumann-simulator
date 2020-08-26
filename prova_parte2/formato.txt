@@ -1,0 +1,4 @@
+    Formato do relatório de saída
+O trecho impresso abaixo ilustra o formato do relatório
+de saída do gerador de referências cruzadas que você
+deve construir, aplicado ao presente texto.
