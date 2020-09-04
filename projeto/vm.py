@@ -1,3 +1,4 @@
+#! /usr/bin/python
 # -*- coding: utf-8 -*-
 
 import sys
@@ -7,37 +8,51 @@ import sys
 # CI: contador de instrucoes
 # AC: acumulador
 
+# variáveis globais do sistema operacional
+overlay_tree = {}
+
 def main(code, debug):
     CI, AC, MEM, FILE = boot(code, debug)
 
+    vezes = 0
     while True:
         if debug:
             if input('CI: {} AC: {}'.format(hex(CI), hex(AC))) == 'mem':
                 range_inf = int(input('De '), 16)
                 range_sup = int(input('Até '), 16)
                 printMEM(MEM, range_inf, range_sup)
-
             print()
 
         CI, AC, status = executeInstruction(CI, AC, MEM, FILE, debug)
 
+        if CI == 0x300 and True:
+            vezes += 1
+            print('\nVEZES:', vezes)
+            for address, value in enumerate(MEM):
+                if address % 64 == 0:
+                    print(hex(address)[2:].zfill(3), ': ', end='')
+                print(hex(value)[2:].zfill(2), end=' ')
+                if address % 64 == 63:
+                    print()
+            if vezes >= 1:
+                break
+
         if status == 'halt':
-            print('\nMáquina parada')
+            print('Máquina parada')
             break
 
         elif status == 'error':
-            print('\nErro: Instrução desconhecida')
+            print('Erro: Instrução desconhecida')
             break
 
 def boot(code, debug):
     # carrega o código do loader na marra
-    MEM = [0x0f, 0x00]
-    MEM.extend([0] * 0xefe)
+    MEM = [0] * 0xf00
     MEM.extend([0xd0, 0x00, 0x9f, 0x44, 0x4f, 0x4b, 0x9f, 0x46, 0xd0, 0x00, 0x9f, 0x45, 0x9f, 0x47, 0xd0, 0x00, 0x9f, 0x4a, 0xd0, 0x00, 0x0f, 0x46, 0x8f, 0x47, 0x4f, 0x4c, 0x1f, 0x3a, 0x9f, 0x47, 0x8f, 0x4a, 0x5f, 0x4c, 0x9f, 0x4a, 0x1f, 0x28, 0x0f, 0x12, 0xd0, 0x00, 0x4f, 0x4b, 0x1f, 0x42, 0x9f, 0x46, 0xd0, 0x00, 0x9f, 0x47, 0xd0, 0x00, 0x9f, 0x4a, 0x0f, 0x12, 0x8f, 0x46, 0x4f, 0x4c, 0x9f, 0x46, 0x0f, 0x1c, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0f, 0x16, 0x00, 0x90, 0x01])
-    MEM.extend([0] * 0xb4)
+    MEM.extend([0] * 0xb3)
 
     AC = 0
-    CI = 0
+    CI = 0xf00
 
     FILE = []
     for line in code.splitlines():
@@ -48,6 +63,8 @@ def boot(code, debug):
 
 
 def executeInstruction(CI, AC, MEM, FILE, debug):
+    global overlay_tree
+
     status = 'ok'
 
     CO = MEM[CI] >> 4
@@ -119,13 +136,54 @@ def executeInstruction(CI, AC, MEM, FILE, debug):
         CI += 2
 
     elif CO == 0xe: # PD
-        FILE.append(AC)
+        #FILE.append(AC)
         print(hex(AC)[2:])
         CI += 2
 
     elif CO == 0xf: # OS
-        CI += 2
+        if AC == 1: # configurar monitor de overlays
+            # extrair o nome do arquivo
+            config_file_name = ''
+            pointer = OP
+            ascii_char = MEM[pointer]
+            while ascii_char != 0:
+                config_file_name += chr(ascii_char)
+                pointer += 1
+                ascii_char = MEM[pointer]
+            #print(config_file_name)
 
+            # abrir o arquivo e montar estrutura da árvore
+            overlay_tree = {}
+            with open(config_file_name, 'r') as config_file:
+                for line in config_file:
+                    if not line.isspace():
+                        contents = line.split()
+                        if len(contents) > 3:
+                            overlay_tree[int(contents[1])] = { 'filename': contents[2], 'depends on': int(contents[5]) }
+                        else:
+                            overlay_tree[int(contents[1])] = { 'filename': contents[2] }
+            CI += 2
+            #print(overlay_tree)
+
+        elif AC == 2: # carrega overlay
+            overlay = overlay_tree[MEM[OP]]
+
+            # coloca overlay na fita para ser carregado pelo loader
+            with open(overlay['filename'], 'r') as code_file:
+                for line in code_file:
+                    for byte in line.split():
+                        FILE.append(int(byte, 16))
+
+            # se tiver alguma dependência, colocar as dependências na lista
+            while 'depends on' in overlay:
+                overlay = overlay_tree[overlay['depends on']]
+                with open(overlay['filename'], 'r') as code_file:
+                    for line in code_file:
+                        for byte in line.split():
+                            FILE.append(int(byte, 16))
+
+            # ir para o loader
+            CI = 0xf00
     else:
         status = 'error'
 

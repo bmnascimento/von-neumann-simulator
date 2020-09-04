@@ -1,0 +1,6 @@
+OVERLAY 1 build/overlay1.hex
+OVERLAY 2 build/overlay2.hex
+OVERLAY 3 build/overlay3.hex DEPENDS ON 1
+OVERLAY 4 build/overlay4.hex DEPENDS ON 2
+OVERLAY 5 build/overlay5.hex DEPENDS ON 2
+OVERLAY 6 build/overlay6.hex DEPENDS ON 4
